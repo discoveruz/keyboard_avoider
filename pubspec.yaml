@@ -1,11 +1,11 @@
 name: keyboard_avoider
 description: A lightweight alternative to the Scaffold widget for avoiding the on-screen software keyboard. Automatically scrolls obscured TextField child widgets into view on focus.
-version: 0.1.2
+version: 0.1.3
 author: Martin Rybak <martin.rybak@gmail.com>
 homepage: https://github.com/vgventures/keyboard-avoider
 
 environment:
-  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+  sdk: ">=2.19.2 <3.0.0"
 
 dependencies:
   flutter:
@@ -14,7 +14,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  pedantic: ^1.9.0                  # Static analysis rules
+#  pedantic: ^1.9.0                  # Static analysis rules
+  lints: ^2.1.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec

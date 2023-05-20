@@ -27,8 +27,8 @@ class KeyboardAvoider extends StatefulWidget {
   final double focusPadding;
 
   KeyboardAvoider({
-    Key key,
-    @required this.child,
+    Key? key,
+    required this.child,
     this.duration = const Duration(milliseconds: 100),
     this.curve = Curves.easeOut,
     this.autoScroll = false,
@@ -40,10 +40,11 @@ class KeyboardAvoider extends StatefulWidget {
   _KeyboardAvoiderState createState() => _KeyboardAvoiderState();
 }
 
-class _KeyboardAvoiderState extends State<KeyboardAvoider> with WidgetsBindingObserver {
+class _KeyboardAvoiderState extends State<KeyboardAvoider>
+    with WidgetsBindingObserver {
   final _animationKey = GlobalKey<ImplicitlyAnimatedWidgetState>();
-  Function(AnimationStatus) _animationListener;
-  ScrollController _scrollController;
+  Function(AnimationStatus)? _animationListener;
+  ScrollController? _scrollController;
   double _overlap = 0.0;
 
   @override
@@ -55,7 +56,10 @@ class _KeyboardAvoiderState extends State<KeyboardAvoider> with WidgetsBindingOb
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _animationKey.currentState?.animation?.removeStatusListener(_animationListener);
+    if (_animationListener != null) {
+      _animationKey.currentState?.animation
+          .removeStatusListener(_animationListener!);
+    }
     super.dispose();
   }
 
@@ -66,7 +70,8 @@ class _KeyboardAvoiderState extends State<KeyboardAvoider> with WidgetsBindingOb
     if (_animationListener == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _animationListener = _animationStatusChanged;
-        _animationKey.currentState.animation.addStatusListener(_animationListener);
+        _animationKey.currentState?.animation
+            .addStatusListener(_animationListener!);
       });
     }
 
@@ -136,10 +141,6 @@ class _KeyboardAvoiderState extends State<KeyboardAvoider> with WidgetsBindingOb
   }
 
   void _resize() {
-    if (context == null) {
-      return;
-    }
-
     // Calculate Rect of widget on screen
     final object = context.findRenderObject();
     final box = object as RenderBox;
@@ -183,18 +184,15 @@ class _KeyboardAvoiderState extends State<KeyboardAvoider> with WidgetsBindingOb
   }
 
   void _scrollToFocusedObject() {
-    if (context == null) {
-      return;
-    }
+    if (context.findRenderObject() != null) {
+      final focused = _findFocusedObject(context.findRenderObject()!);
 
-    final focused = _findFocusedObject(context.findRenderObject());
-    if (focused != null) {
       _scrollToObject(focused);
     }
   }
 
   /// Finds the first focused [RenderEditable] child of [root] using a breadth-first search.
-  RenderObject _findFocusedObject(RenderObject root) {
+  RenderObject? _findFocusedObject(RenderObject root) {
     final q = Queue<RenderObject>();
     q.add(root);
     while (q.isNotEmpty) {
@@ -211,16 +209,19 @@ class _KeyboardAvoiderState extends State<KeyboardAvoider> with WidgetsBindingOb
 
   /// If the focused object is covered by the keyboard, scroll to it.
   /// Otherwise do nothing.
-  void _scrollToObject(RenderObject object) {
+  void _scrollToObject(RenderObject? object) {
     // Calculate the offset needed to show the object in the [ScrollView]
     // so that its bottom touches the top of the keyboard.
+    if (object == null) return;
     final viewport = RenderAbstractViewport.of(object);
-    final offset = viewport.getOffsetToReveal(object, 1.0).offset + widget.focusPadding;
+    final offset =
+        viewport.getOffsetToReveal(object, 1.0).offset + widget.focusPadding;
 
     // If the object is covered by the keyboard, scroll to reveal it,
     // and add [focusPadding] between it and top of the keyboard.
-    if (offset > _scrollController.position.pixels) {
-      _scrollController.position.moveTo(
+    if (_scrollController == null) return;
+    if (offset > _scrollController!.position.pixels) {
+      _scrollController!.position.moveTo(
         offset,
         duration: widget.duration,
         curve: widget.curve,
